@@ -4,7 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import java.util.Set;
 
-@Getter @Setter
+@Getter
+@Setter
 public class ItemDto {
     private Long id;
     private String url;
