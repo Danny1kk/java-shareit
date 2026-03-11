@@ -30,7 +30,7 @@ public class UserMapper {
             user.setName(newUser.getName());
         }
 
-        if (newUser.getEmail() != null&& !newUser.getEmail().isBlank() && newUser.getEmail().contains("@")) {
+        if (newUser.getEmail() != null && !newUser.getEmail().isBlank() && newUser.getEmail().contains("@")) {
             user.setEmail(newUser.getEmail());
         }
     }
