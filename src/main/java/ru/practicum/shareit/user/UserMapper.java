@@ -26,10 +26,12 @@ public class UserMapper {
     }
 
     public static void updateFields(User user, User newUser) {
-        if (newUser.getName() != null)
+        if (newUser.getName() != null && !newUser.getName().isBlank()) {
             user.setName(newUser.getName());
+        }
 
-        if (newUser.getEmail() != null)
+        if (newUser.getEmail() != null&& !newUser.getEmail().isBlank() && newUser.getEmail().contains("@")) {
             user.setEmail(newUser.getEmail());
+        }
     }
 }

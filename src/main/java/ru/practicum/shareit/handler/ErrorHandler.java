@@ -43,4 +43,10 @@ public class ErrorHandler {
     public Map<String, String> handleValidation(final MethodArgumentNotValidException e) {
         return Map.of("error", "Ошибка валидации");
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleThrowable(final Throwable e) {
+        return Map.of("error", "Произошла непредвиденная ошибка: " + e.getMessage());
+    }
 }

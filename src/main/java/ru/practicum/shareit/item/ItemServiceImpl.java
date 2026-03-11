@@ -19,9 +19,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemResponseDto create(Long ownerId, ItemCreateDto dto) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
-
+        User owner = checkUser(ownerId);
         Item item = ItemMapper.mapFromCreateDto(dto);
         item.setOwner(owner);
 
@@ -51,11 +49,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemResponseDto findById(Long userId, Long itemId) {
+        checkUser(userId);
         return ItemMapper.mapToItemDto(getItem(itemId));
     }
 
     @Override
     public List<ItemResponseDto> findAllByOwner(Long ownerId) {
+        checkUser(ownerId);
         return itemRepository.findAllByOwnerId(ownerId)
                 .stream()
                 .map(ItemMapper::mapToItemDto)
@@ -70,7 +70,6 @@ public class ItemServiceImpl implements ItemService {
 
         return itemRepository.search(text)
                 .stream()
-                .filter(Item::getAvailable)
                 .map(ItemMapper::mapToItemDto)
                 .collect(Collectors.toList());
     }
@@ -91,5 +90,10 @@ public class ItemServiceImpl implements ItemService {
 
     private boolean isOwner(Item item, Long userId) {
         return item.getOwner().getId().equals(userId);
+    }
+
+    private User checkUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
     }
 }
