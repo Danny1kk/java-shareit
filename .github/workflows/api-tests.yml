@@ -1,8 +1,53 @@
+#name: ShareIt API Tests
+#
+#on:
+#  pull_request:
+#
+#jobs:
+#  build:
+#    uses: yandex-praktikum/java-shareit/.github/workflows/api-tests.yml@ci
+
 name: ShareIt API Tests
 
 on:
   pull_request:
 
 jobs:
-  build:
-    uses: yandex-praktikum/java-shareit/.github/workflows/api-tests.yml@ci
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16.1
+        env:
+          POSTGRES_USER: shareit
+          POSTGRES_PASSWORD: shareit
+          POSTGRES_DB: shareit
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build and Run Server
+        run: mvn spring-boot:run &
+
+      - name: Wait for Server
+        run: |
+          until curl -s localhost:8080/users; do
+            echo "Waiting for server..."
+            sleep 5
+          done
+
+      - name: Run API Tests
+        run: |
+          npm install -g newman
+          newman run ./tests/postman/sprint.json --delay-request 50
