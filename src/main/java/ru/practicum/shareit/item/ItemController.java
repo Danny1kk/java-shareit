@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.config.Headers;
+import ru.practicum.shareit.item.comment.CommentDto;
 
 import java.util.List;
 
@@ -47,5 +48,12 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemResponseDto> search(@RequestParam String text) {
         return itemService.search(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader(Headers.USER_ID) Long userId,
+                                 @PathVariable Long itemId,
+                                 @RequestBody CommentDto dto) {
+        return itemService.addComment(userId, itemId, dto);
     }
 }

@@ -1,13 +1,9 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-import java.util.Set;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class ItemDto {
     private Long id;
-    private String url;
-    private Set<String> tags;
+    private String name;
 }
