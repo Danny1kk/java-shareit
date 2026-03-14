@@ -20,6 +20,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,26 +85,27 @@ public class ItemServiceImpl implements ItemService {
                 .map(c -> CommentMapper.mapToDto(c))
                 .collect(Collectors.toList());
 
-        return ItemMapper.mapToItemDto(item, lastBooking, nextBooking, comments);
+        return ItemMapper.mapToItemDto(itemRepository.save(item), lastBooking, nextBooking, comments);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemResponseDto> findAllByOwner(Long ownerId) {
         List<Item> items = itemRepository.findAllByOwnerId(ownerId);
 
         return items.stream()
+                .sorted(Comparator.comparing(Item::getId))
                 .map(item -> ItemMapper.mapToItemDto(
                         item,
                         getLastBooking(item.getId()),
                         getNextBooking(item.getId()),
-                        commentRepository.findAllByItemId(item.getId()).stream()
-                                .map(c -> CommentMapper.mapToDto(c))
-                                .collect(Collectors.toList())
+                        getComments(item.getId())
                 ))
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemResponseDto> search(String text) {
         if (text == null || text.isBlank()) {
             return List.of();
@@ -116,6 +118,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id, Long ownerId) {
         Item item = getItem(id);
         if (!isOwner(item, ownerId)) {
@@ -130,12 +133,6 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Item item = getItem(itemId);
-        boolean hasBooking =
-                bookingRepository.findByBooker_IdAndEndIsBefore(userId, LocalDateTime.now())
-                        .stream()
-                        .anyMatch(booking -> booking.getItem().getId().equals(itemId));
-        if (!hasBooking)
-            throw new BadRequestException("Комментарий можно оставить только после аренды");
 
         boolean canComment = bookingRepository.existsByBookerIdAndItemIdAndStatusAndEndBefore(
                 userId, itemId, BookingStatus.APPROVED, LocalDateTime.now());
