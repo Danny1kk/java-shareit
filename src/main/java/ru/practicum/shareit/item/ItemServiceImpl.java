@@ -94,6 +94,14 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.findAllByOwnerId(ownerId);
 
         return items.stream()
+//                .map(item -> ItemMapper.mapToItemDto(
+//                        item,
+//                        getLastBooking(item.getId()),
+//                        getNextBooking(item.getId()),
+//                        commentRepository.findAllByItemId(item.getId()).stream()
+//                                .map(c -> CommentMapper.mapToDto(c))
+//                                .collect(Collectors.toList())
+//                ))
                 .sorted(Comparator.comparing(Item::getId))
                 .map(item -> ItemMapper.mapToItemDto(
                         item,
