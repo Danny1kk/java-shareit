@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -32,8 +32,8 @@ public class BookingMapper {
         return dto;
     }
 
-    public static BookingDto mapToDto(Booking booking) {
-        BookingDto dto = new BookingDto();
+    public static BookingShortDto mapToDto(Booking booking) {
+        BookingShortDto dto = new BookingShortDto();
         dto.setId(booking.getId());
         dto.setBookerId(booking.getBooker().getId());
         return dto;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
@@ -73,8 +73,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemResponseDto findById(Long userId, Long itemId) {
         Item item = getItem(itemId);
 
-        BookingDto lastBooking = null;
-        BookingDto nextBooking = null;
+        BookingShortDto lastBooking = null;
+        BookingShortDto nextBooking = null;
 
         if (item.getOwner().getId().equals(userId)) {
             lastBooking = getLastBooking(itemId);
@@ -166,14 +166,14 @@ public class ItemServiceImpl implements ItemService {
                 .toList();
     }
 
-    private BookingDto getLastBooking(Long itemId) {
+    private BookingShortDto getLastBooking(Long itemId) {
         return bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(
                         itemId, BookingStatus.APPROVED, LocalDateTime.now())
                 .map(b -> BookingMapper.mapToDto(b))
                 .orElse(null);
     }
 
-    private BookingDto getNextBooking(Long itemId) {
+    private BookingShortDto getNextBooking(Long itemId) {
         return bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
                         itemId, BookingStatus.APPROVED, LocalDateTime.now())
                 .map(b -> BookingMapper.mapToDto(b))
