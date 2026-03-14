@@ -15,11 +15,6 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ErrorHandler {
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    public ErrorResponse handleNotFound(NotFoundException e) {
-//        return new ErrorResponse(e.getMessage());
-//    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
@@ -33,39 +28,24 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public ErrorResponse handleBadRequest(BadRequestException e) {
-//        return new ErrorResponse(e.getMessage());
-//    }
-
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public Map<String, String> handleValidation(final MethodArgumentNotValidException e) {
-//        return Map.of("error", "Ошибка валидации");
-//    }
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleThrowable(final Throwable e) {
         return Map.of("error", "Произошла непредвиденная ошибка: " + e.getMessage());
     }
 
-    // 1. Для ошибок валидации через аннотации (@NotNull, @Future и т.д.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidation(final MethodArgumentNotValidException e) {
         return Map.of("error", "Ошибка валидации");
     }
 
-    // 2. Для твоих ручных проверок (ValidationException, BadRequestException)
     @ExceptionHandler({ValidationException.class, BadRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleBadRequest(final RuntimeException e) {
         return Map.of("error", e.getMessage() != null ? e.getMessage() : "Ошибка запроса");
     }
 
-    // 3. Для случаев, когда что-то не найдено
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNotFound(final NotFoundException e) {

@@ -63,7 +63,8 @@ public class ItemServiceImpl implements ItemService {
             item.setAvailable(newDto.getAvailable());
         }
 
-        return ItemMapper.mapToItemDto(itemRepository.save(item), null, null, Collections.emptyList());
+        return ItemMapper.mapToItemDto(
+                itemRepository.save(item), null, null, Collections.emptyList());
     }
 
     @Override
