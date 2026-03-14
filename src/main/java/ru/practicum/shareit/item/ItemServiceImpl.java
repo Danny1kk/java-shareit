@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.ValidationException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -7,7 +8,6 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
@@ -94,14 +94,6 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.findAllByOwnerId(ownerId);
 
         return items.stream()
-//                .map(item -> ItemMapper.mapToItemDto(
-//                        item,
-//                        getLastBooking(item.getId()),
-//                        getNextBooking(item.getId()),
-//                        commentRepository.findAllByItemId(item.getId()).stream()
-//                                .map(c -> CommentMapper.mapToDto(c))
-//                                .collect(Collectors.toList())
-//                ))
                 .sorted(Comparator.comparing(Item::getId))
                 .map(item -> ItemMapper.mapToItemDto(
                         item,
@@ -142,11 +134,10 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Item item = getItem(itemId);
 
-        boolean canComment = bookingRepository.existsByBookerIdAndItemIdAndStatusAndEndBefore(
-                userId, itemId, BookingStatus.APPROVED, LocalDateTime.now());
-
-        if (!canComment) {
-            throw new BadRequestException("Вы не можете оставить комментарий к этой вещи");
+        boolean hasBooking = bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
+                itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
+        if (!hasBooking) {
+            throw new ValidationException("Вы не можете оставить отзыв");
         }
 
         Comment comment = CommentMapper.mapToComment(dto, user, item);

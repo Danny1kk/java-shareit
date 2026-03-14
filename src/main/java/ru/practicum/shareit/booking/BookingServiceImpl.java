@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,11 +32,11 @@ public class BookingServiceImpl implements BookingService {
         Item item = getItem(dto.getItemId());
 
         if (!item.getAvailable()) {
-            throw new BadRequestException("Вещь недоступна для бронирования");
+            throw new ValidationException("Вещь недоступна для бронирования");
         }
 
         if (dto.getStart().isAfter(dto.getEnd()) || dto.getStart().isEqual(dto.getEnd())) {
-            throw new BadRequestException("Дата окончания не может быть раньше или равна дате начала");
+            throw new ValidationException("Дата окончания не может быть раньше или равна дате начала");
         }
 
         if (dto.getStart() == null || dto.getEnd() == null) {
