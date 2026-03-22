@@ -48,8 +48,8 @@ public class BookingMapper {
 
         booking.setItem(item);
         booking.setBooker(booker);
-        booking.setStartTime(dto.getStartTime());
-        booking.setEndTime(dto.getEndTime());
+        booking.setStartTime(dto.getStart());
+        booking.setEndTime(dto.getEnd());
         booking.setStatus(BookingStatus.WAITING);
 
         return booking;

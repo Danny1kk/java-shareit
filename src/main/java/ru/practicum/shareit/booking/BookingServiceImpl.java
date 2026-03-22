@@ -35,16 +35,16 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Вещь недоступна для бронирования");
         }
 
-        if (dto.getStartTime().isAfter(dto.getEndTime()) || dto.getStartTime().isEqual(dto.getEndTime())) {
+        if (dto.getStart().isAfter(dto.getEnd()) || dto.getStart().isEqual(dto.getEnd())) {
             throw new ValidationException("Дата окончания не может быть раньше или равна дате начала");
         }
 
-        if (dto.getStartTime() == null || dto.getEndTime() == null) {
+        if (dto.getStart() == null || dto.getEnd() == null) {
             throw new BadRequestException("Даты не могут быть пустыми");
         }
 
-        if (dto.getStartTime().isBefore(LocalDateTime.now()) || dto.getEndTime().isBefore(LocalDateTime.now())
-            || dto.getStartTime().isAfter(dto.getEndTime()) || dto.getStartTime().isEqual(dto.getEndTime())) {
+        if (dto.getStart().isBefore(LocalDateTime.now()) || dto.getEnd().isBefore(LocalDateTime.now())
+            || dto.getStart().isAfter(dto.getEnd()) || dto.getStart().isEqual(dto.getEnd())) {
             throw new BadRequestException("Некорректные даты бронирования");
         }
 

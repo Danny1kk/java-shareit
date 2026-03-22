@@ -15,10 +15,10 @@ public class BookingCreateDto {
     @NotNull
     @FutureOrPresent
     @Column(name = "start_date")
-    private LocalDateTime startTime;
+    private LocalDateTime start;
 
     @NotNull
     @FutureOrPresent
     @Column(name = "end_date")
-    private LocalDateTime endTime;
+    private LocalDateTime end;
 }
