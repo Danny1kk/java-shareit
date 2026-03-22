@@ -26,9 +26,11 @@ public class ItemMapper {
         dto.setName(item.getName());
         dto.setDescription(item.getDescription());
         dto.setAvailable(item.getAvailable());
+
         dto.setLastBooking(lastBooking);
         dto.setNextBooking(nextBooking);
-        dto.setComments(comments == null ? Collections.emptyList() : comments);
+
+        dto.setComments(comments != null ? comments : Collections.emptyList());
         return dto;
     }
 

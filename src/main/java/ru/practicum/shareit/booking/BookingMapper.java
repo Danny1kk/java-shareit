@@ -18,8 +18,8 @@ public class BookingMapper {
         BookingResponseDto dto = new BookingResponseDto();
 
         dto.setId(booking.getId());
-        dto.setStart(booking.getStart());
-        dto.setEnd(booking.getEnd());
+        dto.setStart(booking.getStartTime());
+        dto.setEnd(booking.getEndTime());
         dto.setStatus(booking.getStatus());
 
         ItemDto itemDto = ItemMapper.mapToShortDto(booking.getItem());
@@ -48,8 +48,8 @@ public class BookingMapper {
 
         booking.setItem(item);
         booking.setBooker(booker);
-        booking.setStart(dto.getStart());
-        booking.setEnd(dto.getEnd());
+        booking.setStartTime(dto.getStartTime());
+        booking.setEndTime(dto.getEndTime());
         booking.setStatus(BookingStatus.WAITING);
 
         return booking;

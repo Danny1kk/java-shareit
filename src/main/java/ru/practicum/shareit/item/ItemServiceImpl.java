@@ -82,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         List<CommentDto> comments = commentRepository.findAllByItemId(itemId).stream()
-                .map(c -> CommentMapper.mapToDto(c))
+                .map(CommentMapper::mapToDto)
                 .collect(Collectors.toList());
 
         return ItemMapper.mapToItemDto(itemRepository.save(item), lastBooking, nextBooking, comments);
@@ -113,7 +113,7 @@ public class ItemServiceImpl implements ItemService {
 
         return itemRepository.search(text)
                 .stream()
-                .map(ItemMapper::mapToItemDto)
+                .map(item -> ItemMapper.mapToItemDto(item, null, null, Collections.emptyList()))
                 .collect(Collectors.toList());
     }
 
@@ -134,7 +134,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Item item = getItem(itemId);
 
-        boolean hasBooking = bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
+        boolean hasBooking = bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndTimeBefore(
                 itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
         if (!hasBooking) {
             throw new ValidationException("Вы не можете оставить отзыв");
@@ -167,14 +167,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private BookingShortDto getLastBooking(Long itemId) {
-        return bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(
+        return bookingRepository.findFirstByItemIdAndStatusAndStartTimeBeforeOrderByEndTimeDesc(
                         itemId, BookingStatus.APPROVED, LocalDateTime.now())
                 .map(b -> BookingMapper.mapToDto(b))
                 .orElse(null);
     }
 
     private BookingShortDto getNextBooking(Long itemId) {
-        return bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
+        return bookingRepository.findFirstByItemIdAndStatusAndStartTimeAfterOrderByStartTimeAsc(
                         itemId, BookingStatus.APPROVED, LocalDateTime.now())
                 .map(b -> BookingMapper.mapToDto(b))
                 .orElse(null);

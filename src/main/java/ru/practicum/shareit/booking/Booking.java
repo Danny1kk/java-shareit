@@ -26,10 +26,10 @@ public class Booking {
     private User booker;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime start;
+    private LocalDateTime startTime;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime end;
+    private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

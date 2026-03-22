@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.dto;
 
 import jakarta.persistence.Column;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -13,12 +13,12 @@ public class BookingCreateDto {
     private Long itemId;
 
     @NotNull
-    @Future
+    @FutureOrPresent
     @Column(name = "start_date")
-    private LocalDateTime start;
+    private LocalDateTime startTime;
 
     @NotNull
-    @Future
+    @FutureOrPresent
     @Column(name = "end_date")
-    private LocalDateTime end;
+    private LocalDateTime endTime;
 }

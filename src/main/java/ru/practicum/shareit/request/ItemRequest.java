@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import ru.practicum.shareit.user.User;
 
 @Data
@@ -16,5 +17,6 @@ public class ItemRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id", nullable = false)
+    @ToString.Exclude
     private User requester;
 }

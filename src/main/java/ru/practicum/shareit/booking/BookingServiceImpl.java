@@ -32,19 +32,19 @@ public class BookingServiceImpl implements BookingService {
         Item item = getItem(dto.getItemId());
 
         if (!item.getAvailable()) {
-            throw new ValidationException("Вещь недоступна для бронирования");
+            throw new BadRequestException("Вещь недоступна для бронирования");
         }
 
-        if (dto.getStart().isAfter(dto.getEnd()) || dto.getStart().isEqual(dto.getEnd())) {
+        if (dto.getStartTime().isAfter(dto.getEndTime()) || dto.getStartTime().isEqual(dto.getEndTime())) {
             throw new ValidationException("Дата окончания не может быть раньше или равна дате начала");
         }
 
-        if (dto.getStart() == null || dto.getEnd() == null) {
+        if (dto.getStartTime() == null || dto.getEndTime() == null) {
             throw new BadRequestException("Даты не могут быть пустыми");
         }
 
-        if (dto.getStart().isBefore(LocalDateTime.now()) || dto.getEnd().isBefore(LocalDateTime.now())
-            || dto.getStart().isAfter(dto.getEnd()) || dto.getStart().isEqual(dto.getEnd())) {
+        if (dto.getStartTime().isBefore(LocalDateTime.now()) || dto.getEndTime().isBefore(LocalDateTime.now())
+            || dto.getStartTime().isAfter(dto.getEndTime()) || dto.getStartTime().isEqual(dto.getEndTime())) {
             throw new BadRequestException("Некорректные даты бронирования");
         }
 
@@ -97,9 +97,9 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings = switch (bookingState) {
             case ALL -> bookingRepository.findByBooker_Id(userId);
-            case CURRENT -> bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, now, now);
-            case PAST -> bookingRepository.findByBooker_IdAndEndIsBefore(userId, now);
-            case FUTURE -> bookingRepository.findByBooker_IdAndStartIsAfter(userId, now);
+            case CURRENT -> bookingRepository.findByBooker_IdAndStartTimeIsBeforeAndEndTimeIsAfter(userId, now, now);
+            case PAST -> bookingRepository.findByBooker_IdAndEndTimeIsBefore(userId, now);
+            case FUTURE -> bookingRepository.findByBooker_IdAndStartTimeIsAfter(userId, now);
             case WAITING -> bookingRepository.findByBooker_Id(userId).stream()
                     .filter(b -> b.getStatus() == BookingStatus.WAITING).toList();
             case REJECTED -> bookingRepository.findByBooker_Id(userId).stream()
@@ -124,9 +124,9 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings = switch (bookingState) {
             case ALL -> bookingRepository.findByItem_Owner_Id(ownerId);
-            case CURRENT -> bookingRepository.findByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(ownerId, now, now);
-            case PAST -> bookingRepository.findByItem_Owner_IdAndEndBefore(ownerId, now);
-            case FUTURE -> bookingRepository.findByItem_Owner_IdAndStartAfter(ownerId, now);
+            case CURRENT -> bookingRepository.findByItem_Owner_IdAndStartTimeIsBeforeAndEndTimeIsAfter(ownerId, now, now);
+            case PAST -> bookingRepository.findByItem_Owner_IdAndEndTimeBefore(ownerId, now);
+            case FUTURE -> bookingRepository.findByItem_Owner_IdAndStartTimeAfter(ownerId, now);
             case WAITING -> bookingRepository.findByItem_Owner_Id(ownerId).stream()
                     .filter(b -> b.getStatus() == BookingStatus.WAITING).toList();
             case REJECTED -> bookingRepository.findByItem_Owner_Id(ownerId).stream()
@@ -138,11 +138,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User не найден"));
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
     private Item getItem(Long itemId) {
-        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item не найден"));
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
     }
 
     private Booking getBooking(Long bookingId) {

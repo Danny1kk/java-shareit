@@ -14,34 +14,34 @@ import java.util.Map;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler
+    @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleForbidden(ForbiddenException e) {
-        return new ErrorResponse(e.getMessage());
+    public Map<String, String> handleForbidden(ForbiddenException e) {
+        return Map.of("error", e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflict(ConflictException e) {
-        return new ErrorResponse(e.getMessage());
+    public Map<String, String> handleConflict(ConflictException e) {
+        return Map.of("error", "Ошибка валидации");
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleThrowable(final Throwable e) {
         return Map.of("error", "Произошла непредвиденная ошибка: " + e.getMessage());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({ru.practicum.shareit.exception.ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidation(final MethodArgumentNotValidException e) {
         return Map.of("error", "Ошибка валидации");
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleBadRequest(final RuntimeException e) {
-        return Map.of("error", e.getMessage());
+    public Map<String, String> handleMethodArgumentNotValid(final MethodArgumentNotValidException e) {
+        return Map.of("error", "Ошибка валидации");
     }
 
     @ExceptionHandler(NotFoundException.class)
