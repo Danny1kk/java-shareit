@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,28 +31,18 @@ public class BookingServiceImpl implements BookingService {
         Item item = getItem(dto.getItemId());
 
         if (!item.getAvailable()) {
-            throw new BadRequestException("Вещь недоступна для бронирования");
+            throw new BadRequestException("Вещь с id=" + item.getId() + " недоступна для бронирования");
         }
 
-        if (dto.getStart().isAfter(dto.getEnd()) || dto.getStart().isEqual(dto.getEnd())) {
-            throw new ValidationException("Дата окончания не может быть раньше или равна дате начала");
-        }
-
-        if (dto.getStart() == null || dto.getEnd() == null) {
-            throw new BadRequestException("Даты не могут быть пустыми");
-        }
-
-        if (dto.getStart().isBefore(LocalDateTime.now()) || dto.getEnd().isBefore(LocalDateTime.now())
-            || dto.getStart().isAfter(dto.getEnd()) || dto.getStart().isEqual(dto.getEnd())) {
-            throw new BadRequestException("Некорректные даты бронирования");
+        if (dto.getEnd().isBefore(dto.getStart()) || dto.getEnd().equals(dto.getStart())) {
+            throw new BadRequestException("Дата окончания не может быть раньше или равна дате начала");
         }
 
         if (item.getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Владелец не может забронировать свою же забронированную вещь");
+            throw new NotFoundException("Владелец не может забронировать свою вещь");
         }
 
         Booking booking = BookingMapper.mapFromCreateDto(dto, item, user);
-        booking.setStatus(BookingStatus.WAITING);
         return BookingMapper.mapToResponseDto(bookingRepository.save(booking));
     }
 
@@ -73,7 +62,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BookingResponseDto findById(Long userId, Long bookingId) {
         getUser(userId);
         Booking booking = getBooking(bookingId);
@@ -84,16 +72,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BookingResponseDto> findAllByUser(Long userId, String state) {
         getUser(userId);
         LocalDateTime now = LocalDateTime.now();
-        BookingState bookingState;
-        try {
-            bookingState = BookingState.valueOf(state);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Неизвестное состояние: " + state);
-        }
+        BookingState bookingState = parseState(state);
 
         List<Booking> bookings = switch (bookingState) {
             case ALL -> bookingRepository.findByBooker_Id(userId);
@@ -104,23 +86,17 @@ public class BookingServiceImpl implements BookingService {
                     .filter(b -> b.getStatus() == BookingStatus.WAITING).toList();
             case REJECTED -> bookingRepository.findByBooker_Id(userId).stream()
                     .filter(b -> b.getStatus() == BookingStatus.REJECTED).toList();
-            default -> throw new IllegalStateException("Неизвестное состояние");
         };
 
         return bookings.stream().map(BookingMapper::mapToResponseDto).toList();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BookingResponseDto> findAllByOwner(Long ownerId, String state) {
         getUser(ownerId);
         LocalDateTime now = LocalDateTime.now();
-        BookingState bookingState;
-        try {
-            bookingState = BookingState.valueOf(state);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Неизвестное состояние: " + state);
-        }
+        BookingState bookingState = parseState(state);
+
 
         List<Booking> bookings = switch (bookingState) {
             case ALL -> bookingRepository.findByItem_Owner_Id(ownerId);
@@ -131,22 +107,31 @@ public class BookingServiceImpl implements BookingService {
                     .filter(b -> b.getStatus() == BookingStatus.WAITING).toList();
             case REJECTED -> bookingRepository.findByItem_Owner_Id(ownerId).stream()
                     .filter(b -> b.getStatus() == BookingStatus.REJECTED).toList();
-            default -> throw new IllegalStateException("Неизвестное состояние");
         };
 
         return bookings.stream().map(BookingMapper::mapToResponseDto).toList();
     }
 
+    private BookingState parseState(String state) {
+        try {
+            return BookingState.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Неизвестное состояние: " + state);
+        }
+    }
+
     private User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
     }
 
     private Item getItem(Long itemId) {
-        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Вещь с id=" + itemId + " не найдена"));
     }
 
     private Booking getBooking(Long bookingId) {
         return bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Booking не найден"));
+                .orElseThrow(() -> new NotFoundException("Бронирование с id=" + bookingId + " не найдено"));
     }
 }
