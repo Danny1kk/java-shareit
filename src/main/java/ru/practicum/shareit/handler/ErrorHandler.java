@@ -10,8 +10,6 @@ import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 
-import java.util.Map;
-
 @RestControllerAdvice
 public class ErrorHandler {
 
