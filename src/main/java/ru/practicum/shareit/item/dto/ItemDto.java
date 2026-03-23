@@ -1,13 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-import java.util.Set;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class ItemDto {
+    @NotBlank(groups = Create.class)
     private Long id;
-    private String url;
-    private Set<String> tags;
+
+    @NotBlank(groups = Create.class)
+    private String name;
 }
