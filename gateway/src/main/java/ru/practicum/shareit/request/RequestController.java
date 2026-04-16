@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.config.Headers;
-import ru.practicum.shareit.request.ItemRequestDto;
 
 @RestController
 @RequestMapping("/requests")

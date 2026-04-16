@@ -8,8 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.config.Headers;
-import ru.practicum.shareit.item.ItemDto;
-
 
 @RestController
 @RequestMapping("/items")
