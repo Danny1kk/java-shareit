@@ -16,6 +16,8 @@ import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestMapper;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.request.ItemRequestRepository;
@@ -23,6 +25,7 @@ import ru.practicum.shareit.request.ItemRequestRepository;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,12 +40,12 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemResponseDto create(Long ownerId, ItemCreateDto dto) {
         User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=" + ownerId + " не найден")));
         Item item = ItemMapper.mapFromCreateDto(dto);
         item.setOwner(owner);
         if (dto.getRequestId() != null) {
             ItemRequest itemRequest = itemRequestRepository.findById(dto.getRequestId()).orElseThrow(
-                    () -> new NotFoundException("Запрос не найден"));
+                    () -> new NotFoundException(String.format("Запрос с id=" + dto.getRequestId() + " не найден")));
             item.setItemRequest(itemRequest);
         }
         return ItemMapper.mapToItemDto(itemRepository.save(item),
@@ -102,9 +105,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemResponseDto> search(String text) {
-        if (text == null || text.isBlank()) {
-            return List.of();
-        }
 
         return itemRepository.search(text)
                 .stream()
@@ -139,7 +139,7 @@ public class ItemServiceImpl implements ItemService {
 
     private Item getItem(Long itemId) {
         return itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
+                .orElseThrow(() -> new NotFoundException(String.format("Вещь с id " + itemId + " не найдена")));
     }
 
     private boolean isOwner(Item item, Long userId) {
@@ -148,7 +148,7 @@ public class ItemServiceImpl implements ItemService {
 
     private User checkUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=" + userId + " не найден")));
     }
 
     private List<CommentDto> getComments(Long itemId) {

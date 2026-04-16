@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void delete(Long id) {
         repository.findById(id).orElseThrow(
-                () -> new NotFoundException("Пользователь не найден"));
+                () -> new NotFoundException(String.format("Пользователь с id=" + id + " не найден")));
 
         repository.deleteById(id);
     }
@@ -60,12 +60,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findById(Long id) {
-        return UserMapper.mapToUserDto(repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден")));
+        return UserMapper.mapToUserDto(findUserById(id));
     }
 
     private User findUserById(Long userId) {
         return repository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=" + userId + " не найден")));
     }
 }

@@ -50,6 +50,10 @@ public class ItemController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchItems(@RequestParam String text,
                                               @RequestHeader(Headers.USER_ID) Long userId) {
+        if (text == null || text.isBlank()) {
+            return ResponseEntity.ok(java.util.Collections.emptyList());
+        }
+
         log.info("Поиск вещей по тексту='{}', userId={}", text, userId);
         return itemClient.searchItems(text, userId);
     }
